@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path"
@@ -14,7 +15,7 @@ import (
 )
 
 func main() {
-	defer helpers.Timelog("Export")()
+	timeLog := helpers.Timelog("Export")
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	if err := os.Mkdir(constants.INPUT_DIR, os.ModePerm); err == nil {
@@ -44,9 +45,13 @@ func main() {
 		go func(fileName string) {
 			defer wg.Done()
 			total, success, failed := cmd.Run(fileName)
-			fmt.Printf("Total [%v] | Success [%v] | Failed [%v]\n", total, success, failed)
+			fmt.Printf("Input   : %s\nTotal   : %v\nSuccess : %v\nFailed  : %v\n\n", fileName, total, success, failed)
 		}(file)
 	}
 
 	wg.Wait()
+	timeLog()
+
+	fmt.Println("Press 'Enter' to exit")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
 }
