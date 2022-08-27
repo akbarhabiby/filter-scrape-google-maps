@@ -14,7 +14,18 @@ import (
 	"github.com/akbarhabiby/filter-scrape-google-maps/helpers"
 )
 
+const banner = `
+  _____.__.__   __                                                           
+_/ ____|__|  |_/  |_  ___________    ______ ________________  ______   ____  
+\   __\|  |  |\   ___/ __ \_  __ \  /  ____/ ___\_  __ \__  \ \____ \_/ __ \ 
+ |  |  |  |  |_|  | \  ___/|  | \/  \___ \\  \___|  | \// __ \|  |_> \  ___/ 
+ |__|  |__|____|__|  \___  |__|    /____  >\___  |__|  (____  |   __/ \___  >
+                         \/             \/     \/           \/|__|        \/ 
+                                                                             
+`
+
 func main() {
+	fmt.Print(banner)
 	timeLog := helpers.Timelog("Export")
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -45,7 +56,7 @@ func main() {
 		go func(fileName string) {
 			defer wg.Done()
 			total, success, failed := cmd.Run(fileName)
-			fmt.Printf("Input   : %s\nTotal   : %v\nSuccess : %v\nFailed  : %v\n\n", fileName, total, success, failed)
+			fmt.Printf("\n\n>> Input   : %s\n>> Total   : %v\n>> Success : %v\n>> Failed  : %v\n\n", fileName, total, success, failed)
 		}(file)
 	}
 

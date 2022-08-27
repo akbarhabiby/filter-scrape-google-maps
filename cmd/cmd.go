@@ -30,6 +30,8 @@ func Run(fileName string) (total int, success int, failed int) {
 	listSuccess := make([]models.Scrapes, 0)
 	listFail := make([]models.Scrapes, 0)
 
+	fmt.Printf("Working on %s ...\n", fileName)
+	timeLog := helpers.Timelog("Work")
 	for _, address := range result.Scrapes {
 		number := strings.TrimSpace(address.Number)
 		if strings.Contains(number, "-") {
@@ -79,6 +81,8 @@ func Run(fileName string) (total int, success int, failed int) {
 			listSuccess = append(listSuccess, address)
 		}
 	}
+
+	timeLog()
 
 	if err := os.Mkdir(constants.OUTPUT_DIR, os.ModePerm); err == nil {
 		fmt.Printf("[INIT] %s folder not found, created.\n", constants.OUTPUT_DIR)
