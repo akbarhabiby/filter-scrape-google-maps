@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -24,14 +25,28 @@ _/ ____|__|  |_/  |_  ___________    ______ ________________  ______   ____
                                                                              
 `
 
+func init() {
+	if err := os.Mkdir(constants.LOG_DIR, os.ModePerm); err == nil {
+		fmt.Printf("[INIT] %s folder not found, created.\n", constants.LOG_DIR)
+	}
+	if err := os.Mkdir(constants.OUTPUT_DIR, os.ModePerm); err == nil {
+		fmt.Printf("[INIT] %s folder not found, created.\n", constants.OUTPUT_DIR)
+	}
+	if err := os.Mkdir(constants.INPUT_DIR, os.ModePerm); err == nil {
+		fmt.Printf("[INIT] %s folder not found, created.\n", constants.INPUT_DIR)
+	}
+	file, err := os.OpenFile(path.Join(constants.LOG_DIR, constants.LOG_FILE), os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+	if err != nil {
+		panic(err)
+	}
+	log.SetOutput(file)
+}
+
 func main() {
 	fmt.Print(banner)
 	timeLog := helpers.Timelog("Export")
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	if err := os.Mkdir(constants.INPUT_DIR, os.ModePerm); err == nil {
-		fmt.Printf("[INIT] %s folder not found, created.\n", constants.INPUT_DIR)
-	}
 	dir, err := os.ReadDir(constants.INPUT_DIR)
 	if err != nil {
 		panic(err)
