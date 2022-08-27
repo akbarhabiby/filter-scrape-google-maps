@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/akbarhabiby/filter-scrape-google-maps/constants"
@@ -27,15 +28,17 @@ func Run(fileName string) (total int, success int, failed int) {
 
 			x, err := helpers.GetInt(numbersArr[0])
 			if err != nil {
-				listFail = append(listFail, address)
-				log.Println(fmt.Errorf("failed to parse [%s]", number))
+				newNumber := helpers.RemoveUnusedStringAndToUpper(address.Number)
+				listFail = append(listFail, helpers.GenerateNewAddressModel(address, newNumber))
+				log.Println(fmt.Errorf("failed to parse [%s] => [%s]", number, newNumber))
 				continue
 			}
 
 			y, err := helpers.GetInt(numbersArr[1])
 			if err != nil {
-				listFail = append(listFail, address)
-				log.Println(fmt.Errorf("failed to parse [%s]", number))
+				newNumber := helpers.RemoveUnusedStringAndToUpper(address.Number)
+				listFail = append(listFail, helpers.GenerateNewAddressModel(address, newNumber))
+				log.Println(fmt.Errorf("failed to parse [%s] => [%s]", number, newNumber))
 				continue
 			}
 
@@ -45,28 +48,16 @@ func Run(fileName string) (total int, success int, failed int) {
 				x = z
 			}
 
-			numReplacer := address.Number
-
 			for i := x; i <= y; i++ {
-				newNumber := fmt.Sprint(i)
-				newFullAddress := strings.ReplaceAll(address.FullAddress, numReplacer, newNumber)
-				newAddress := models.Scrapes{
-					FullAddress: newFullAddress,
-					Number:      newNumber,
-					District:    address.District,
-					City:        address.City,
-					Province:    address.Province,
-					PostalCode:  address.PostalCode,
-					Country:     address.Country,
-					Latitude:    address.Latitude,
-					Longitude:   address.Longitude,
-					PlusCode:    address.PlusCode,
-					CreatedAt:   address.CreatedAt,
-				}
-				listSuccess = append(listSuccess, newAddress)
+				listSuccess = append(listSuccess, helpers.GenerateNewAddressModel(address, fmt.Sprint(i)))
 			}
 		} else {
-			listSuccess = append(listSuccess, address)
+			newNumber := helpers.RemoveUnusedStringAndToUpper(address.Number)
+			i, err := strconv.Atoi(newNumber)
+			if err == nil {
+				newNumber = fmt.Sprint(i)
+			}
+			listSuccess = append(listSuccess, helpers.GenerateNewAddressModel(address, newNumber))
 		}
 	}
 
