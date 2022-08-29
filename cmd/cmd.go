@@ -6,6 +6,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/akbarhabiby/filter-scrape-google-maps/constants"
 	"github.com/akbarhabiby/filter-scrape-google-maps/helpers"
@@ -63,8 +64,20 @@ func Run(fileName string) (total int, success int, failed int) {
 
 	timeLog()
 
-	helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.SUCCESS, strings.ReplaceAll(fileName, "input/", ""))), listSuccess)
-	helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.ERROR, strings.ReplaceAll(fileName, "input/", ""))), listFail)
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.SUCCESS, strings.ReplaceAll(fileName, "input/", ""))), listSuccess)
+	}()
+	go func() {
+		defer wg.Done()
+		helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.ERROR, strings.ReplaceAll(fileName, "input/", ""))), listFail)
+	}()
+
+	wg.Wait()
 
 	total = len(result.Scrapes)
 	success = len(listSuccess)
