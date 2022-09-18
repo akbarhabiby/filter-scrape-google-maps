@@ -66,7 +66,7 @@ func Run(fileName string) (total int, success int, failed int) {
 
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -75,6 +75,13 @@ func Run(fileName string) (total int, success int, failed int) {
 	go func() {
 		defer wg.Done()
 		helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.ERROR, strings.ReplaceAll(fileName, "input/", ""))), listFail)
+	}()
+	go func() {
+		defer wg.Done()
+		jsonCSVData := make([]models.Scrapes, 0)
+		jsonCSVData = append(jsonCSVData, listSuccess...)
+		jsonCSVData = append(jsonCSVData, listFail...)
+		helpers.ExportJSONtoCSV(path.Join(constants.OUTPUT_DIR, strings.ReplaceAll(strings.ReplaceAll(fileName, "input/", ""), ".json", ".csv")), jsonCSVData)
 	}()
 
 	wg.Wait()

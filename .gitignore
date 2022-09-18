@@ -3,3 +3,4 @@ out
 log
 bin
 replacer.json
+.DS_Store
