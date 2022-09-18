@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path"
@@ -40,6 +42,36 @@ func init() {
 		panic(err)
 	}
 	log.SetOutput(file)
+
+	file, err = os.Open(constants.STR_REPLACE_FILE)
+	if err != nil {
+		file, err = os.Create(constants.STR_REPLACE_FILE)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("[INIT] %s file not found, created.\n", constants.STR_REPLACE_FILE)
+		defer file.Close()
+		err = json.Unmarshal([]byte(constants.DEFAULT_REPLACER), &helpers.ReplacerStrings)
+		if err != nil {
+			panic(err)
+		}
+		bt, err := json.MarshalIndent(helpers.ReplacerStrings, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+		file.Write(bt)
+		return
+	}
+
+	defer file.Close()
+	bt, err := ioutil.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(bt, &helpers.ReplacerStrings)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
