@@ -6,7 +6,6 @@ import (
 	"path"
 	"strconv"
 	"strings"
-	"sync"
 
 	"github.com/akbarhabiby/filter-scrape-google-maps/constants"
 	"github.com/akbarhabiby/filter-scrape-google-maps/helpers"
@@ -64,27 +63,10 @@ func Run(fileName string) (total int, success int, failed int) {
 
 	timeLog()
 
-	var wg sync.WaitGroup
-
-	wg.Add(3)
-
-	go func() {
-		defer wg.Done()
-		helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.SUCCESS, strings.ReplaceAll(fileName, "input/", ""))), listSuccess)
-	}()
-	go func() {
-		defer wg.Done()
-		helpers.ExportJSON(path.Join(constants.OUTPUT_DIR, fmt.Sprintf("%s-%s", constants.ERROR, strings.ReplaceAll(fileName, "input/", ""))), listFail)
-	}()
-	go func() {
-		defer wg.Done()
-		jsonCSVData := make([]models.Scrapes, 0)
-		jsonCSVData = append(jsonCSVData, listSuccess...)
-		jsonCSVData = append(jsonCSVData, listFail...)
-		helpers.ExportJSONtoCSV(path.Join(constants.OUTPUT_DIR, strings.ReplaceAll(strings.ReplaceAll(fileName, "input/", ""), ".json", ".csv")), jsonCSVData)
-	}()
-
-	wg.Wait()
+	jsonCSVData := make([]models.Scrapes, 0)
+	jsonCSVData = append(jsonCSVData, listSuccess...)
+	jsonCSVData = append(jsonCSVData, listFail...)
+	helpers.ExportJSONtoCSV(path.Join(constants.OUTPUT_DIR, strings.ReplaceAll(strings.ReplaceAll(fileName, "input/", ""), ".json", ".csv")), jsonCSVData)
 
 	total = len(result.Scrapes)
 	success = len(listSuccess)
